@@ -2,6 +2,7 @@ const router = require("express").Router();
 const workout = require("../models/workout.js");
 const path = require("path");
 var db = require("../models");
+const mongojs =
 //************************************************************//
 // HTML Routes
 //************************************************************//
@@ -25,7 +26,7 @@ router.get("/stats", (req, res) => {
 //************************************************************//
 
 
-router.post("/api/worksouts", ({ body }, res) => {
+router.post("/api/workouts", ({ body }, res) => {
     console.log(body);
     db.Workout.create(body)
         .then(dbWorkout => {
@@ -41,8 +42,8 @@ router.put("/api/workouts/:id", (req, res) => {
     console.log(req)
     let body = req.body;
 
-    workout.update(
-      { _id: mongojs.ObjectId(req.params.id) },
+    workout.findByIdAndUpdate(
+      req.params.id,
       {
         $push: {
           exercises: {
@@ -67,19 +68,19 @@ router.put("/api/workouts/:id", (req, res) => {
 
 
 router.get("/api/workouts/range", (req, res) => {
-    workout.find({})
-        // .sort({ date: -1 })
-        .then(workoutResult => {
-            res.json(workoutResult);
+    db.Workout.find({})
+        .sort({ day: -1 })
+        .limit(7)
+        .then(dbWorkout => {
+            res.json(dbWorkout.reverse()); // to get 7 newest workouts
         })
         .catch(err => {
             res.status(400).json(err);
         });
 });
 
-router.get("/api/worksouts", (req, res) => {
-    db.workout.find({})
-        // .sort({ date: -1 })
+router.get("/api/workouts", (req, res) => {
+    db.Workout.find({})
         .then(dbWorkout => {
             res.json(dbWorkout);
         })
