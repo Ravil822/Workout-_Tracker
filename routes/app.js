@@ -1,6 +1,7 @@
 const router = require("express").Router();
-const Workout = require("../models/workout.js");
+const workout = require("../models/workout.js");
 const path = require("path");
+var db = require("../models");
 //************************************************************//
 // HTML Routes
 //************************************************************//
@@ -25,27 +26,59 @@ router.get("/stats", (req, res) => {
 
 
 router.post("/api/worksouts", ({ body }, res) => {
-    Workout.create(body)
+    console.log(body);
+    db.Workout.create(body)
         .then(dbWorkout => {
             res.json(dbWorkout);
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(400).json(err);
+        });
+});
+
+router.put("/api/workouts/:id", (req, res) => {
+    console.log(req)
+    let body = req.body;
+
+    workout.update(
+      { _id: mongojs.ObjectId(req.params.id) },
+      {
+        $push: {
+          exercises: {
+            type: body.type,
+            name: body.name,
+            duration: body.duration,
+            weight: body.weight,
+            reps: body.reps,
+            sets: body.sets,
+            distance: body.distance,
+            totalDuration: body.totalDuration
+          }
+        }
+      })
+      .then(workoutResult => {
+        res.json(workoutResult)
+      })
+      .catch(err => {
+        res.status(400).json(err)
+      })
+  })
+
+
+router.get("/api/workouts/range", (req, res) => {
+    workout.find({})
+        // .sort({ date: -1 })
+        .then(workoutResult => {
+            res.json(workoutResult);
         })
         .catch(err => {
             res.status(400).json(err);
         });
 });
 
-// router.post("/api/transaction/bulk", ({ body }, res) => {
-//     Transaction.insertMany(body)
-//         .then(dbTransaction => {
-//             res.json(dbTransaction);
-//         })
-//         .catch(err => {
-//             res.status(400).json(err);
-//         });
-// });
-
 router.get("/api/worksouts", (req, res) => {
-    Workout.find({})
+    db.workout.find({})
         // .sort({ date: -1 })
         .then(dbWorkout => {
             res.json(dbWorkout);
