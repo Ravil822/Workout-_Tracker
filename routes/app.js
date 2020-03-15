@@ -2,7 +2,7 @@ const router = require("express").Router();
 const workout = require("../models/workout.js");
 const path = require("path");
 var db = require("../models");
-const mongojs =
+
 //************************************************************//
 // HTML Routes
 //************************************************************//
